@@ -100,20 +100,23 @@ export default function MainForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-zinc-900/90 rounded-xl shadow-md font-[Raleway] ">
-      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+    <div className="max-w-md mx-auto text-black rounded-xl font-[Raleway] ">
+      <form
+        className="space-y-3 w-[400px] ml-4"
+        onSubmit={(e) => e.preventDefault()}
+      >
         <div className="relative" ref={fromRef}>
-          <div className="absolute left-4 top-8 h-6 w-[3px] bg-white z-0"></div>
+          <div className="absolute left-5 top-8 h-8 w-[1px] bg-black z-0"></div>
 
           {/* From input */}
           <div className="flex gap-2 items-center mb-2 relative z-10">
-            <div className="rounded-full bg-zinc-500/30 w-12 h-10 flex items-center justify-center">
-              <div className="w-4 h-4 border-2 border-white rounded-full"></div>
+            <div className="rounded-full bg-zinc-500/10 w-12 h-10 flex items-center justify-center">
+              <div className="w-4 h-4 border-2 border-black rounded-full"></div>
             </div>
             <input
               type="text"
               placeholder="From"
-              className="w-full px-4 py-2 rounded-full bg-zinc-500/30 focus:outline-none focus:ring text-sm"
+              className="w-full px-4 py-2 rounded-lg bg-zinc-500/10 focus:outline-none focus:ring text-sm"
               value={fromQuery}
               onChange={(e) => setFromQuery(e.target.value)}
               onFocus={() => setShowFromSuggestions(true)}
@@ -154,13 +157,13 @@ export default function MainForm() {
         {/* To input */}
         <div className="relative" ref={toRef}>
           <div className="flex gap-2 items-center relative z-10">
-            <div className="rounded-full bg-zinc-500/30 w-12 h-10 flex items-center justify-center">
-              <div className="w-4 h-4 border-2 border-white rounded-full"></div>
+            <div className="rounded-full bg-zinc-500/10 w-12 h-10 flex items-center justify-center">
+              <div className="w-4 h-4 border-2 border-black rounded-full"></div>
             </div>
             <input
               type="text"
               placeholder="To"
-              className="w-full px-4 py-2 rounded-full bg-zinc-500/30 focus:outline-none focus:ring text-sm"
+              className="w-full px-4 py-2 rounded-lg bg-zinc-500/10 focus:outline-none focus:ring text-sm"
               value={toQuery}
               onChange={(e) => setToQuery(e.target.value)}
               onFocus={() => setShowToSuggestions(true)}
@@ -201,9 +204,9 @@ export default function MainForm() {
         {/* Date input */}
         <div className="flex gap-2 items-center">
           <input
-            type="date"
-            className="w-full px-4 py-2 rounded-full bg-zinc-500/30 focus:outline-none focus:ring text-sm"
-            placeholder="Date"
+            type="Date"
+            className="w-full px-4 py-2 rounded-lg bg-zinc-500/10 focus:outline-none focus:ring text-sm"
+            placeholder="Today"
           />
         </div>
 
@@ -211,13 +214,13 @@ export default function MainForm() {
         <input
           type="text"
           placeholder="Passengers"
-          className="w-full px-4 py-2 bg-zinc-500/30 rounded-full focus:outline-none focus:ring text-sm"
+          className="w-full px-4 py-2 bg-zinc-500/10 rounded-lg focus:outline-none focus:ring text-sm"
         />
 
         {/* Submit button */}
         <button
           type="submit"
-          className="w-full bg-white text-black py-2 rounded-full hover:bg-zinc-50/60 transition duration-300 text-sm font-semibold flex items-center justify-center gap-2"
+          className="w-full bg-black text-white py-2 rounded-lg hover:bg-zinc-500/80 transition duration-300 text-sm font-semibold flex items-center justify-center gap-2"
           onClick={() => router.push("/rides")}
         >
           Search Ride

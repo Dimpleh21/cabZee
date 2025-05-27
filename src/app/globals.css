@@ -7,8 +7,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #000000;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #000000;
   }
 }
 
@@ -17,6 +17,6 @@ body {
   color: var(--foreground);
   font-family: "Montserrat", sans-serif;
 }
-input[type="date"]::-webkit-calendar-picker-indicator {
+/* input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1) brightness(2);
-}
+} */
