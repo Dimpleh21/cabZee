@@ -2,7 +2,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Navbar from "./Navbar"; // adjust path to your actual Navbar
+import NavBar from "./NavBar"; // adjust path to your actual Navbar
 
 export default function LayoutWrapper({ children }) {
   const pathname = usePathname();
@@ -14,7 +14,7 @@ export default function LayoutWrapper({ children }) {
 
   return (
     <>
-      {shouldShowNavbar && <Navbar />}
+      {shouldShowNavbar && <NavBar />}
       {children}
     </>
   );

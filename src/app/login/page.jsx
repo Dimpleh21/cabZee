@@ -2,6 +2,7 @@
 import { GlowingEffect } from "@/app/components/ui/glowing-effect";
 import { HoverBorderGradient } from "@/app/components/ui/border-gradient"; // adjust path if needed
 import { useState } from "react";
+import { loginUser } from "../utils/actions";
 import { useRouter } from "next/navigation";
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -18,26 +19,17 @@ export default function Login() {
     }
 
     try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await loginUser({ email, password });
 
-      const data = await res.json();
-
-      if (!res.ok) {
+      if (!data.ok) {
         setError(data.message || "Login failed");
         return;
       }
 
-      // Save user info with custom id and name
       localStorage.setItem(
         "user",
         JSON.stringify({ id: data.user.id, name: data.user.name })
       );
-
-      // Redirect to dashboard after successful login
       router.push("/");
     } catch (err) {
       setError("Something went wrong. Please try again.");
@@ -47,7 +39,6 @@ export default function Login() {
   return (
     <div className="flex flex-col min-h-screen bg-black text-white items-center justify-center px-4">
       <div className="relative w-full max-w-md">
-        {/* Glowing effect wrapper */}
         <GlowingEffect
           spread={80}
           glow={true}
@@ -56,7 +47,6 @@ export default function Login() {
           inactiveZone={0.01}
           className="absolute inset-0 rounded-2xl pointer-events-none"
         />
-        {/* Login Card */}
         <div className="relative z-10 border border-gray-500/50 bg-zinc-900/70 rounded-2xl p-10 flex flex-col items-center justify-center shadow-xl backdrop-blur-md">
           <h1 className="text-4xl font-extrabold mb-10 tracking-tight">
             Login

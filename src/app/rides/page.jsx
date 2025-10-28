@@ -1,23 +1,40 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { GlareCard } from "../components/ui/glare-card"; // check path
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { LampContainer } from "../components/ui/lamp";
-
+import { getRides } from "../utils/actions";
 export default function Rides() {
   const [rides, setRides] = useState([]);
+  const [baseFilteredRides, setBaseFilteredRides] = useState([]);
   const [filteredRides, setFilteredRides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSeats, setSelectedSeats] = useState({}); // Track seats per ride
+  const [selectedSeats, setSelectedSeats] = useState({});
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const fetchRides = async () => {
       try {
-        const res = await fetch("/api/publishRide");
-        const data = await res.json();
+        const data = (await getRides()) || [];
+
+        const fromParam = searchParams.get("from")?.toLowerCase();
+        const toParam = searchParams.get("to")?.toLowerCase();
+
+        const filtered = data.filter((ride) => {
+          const matchesFrom = fromParam
+            ? ride.from.toLowerCase().includes(fromParam)
+            : true;
+          const matchesTo = toParam
+            ? ride.to.toLowerCase().includes(toParam)
+            : true;
+          return matchesFrom && matchesTo;
+        });
+
         setRides(data);
-        setFilteredRides(data);
+        setBaseFilteredRides(filtered);
+        setFilteredRides(filtered);
       } catch (err) {
         console.error("Error fetching rides:", err);
       } finally {
@@ -26,12 +43,12 @@ export default function Rides() {
     };
 
     fetchRides();
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const query = searchQuery.toLowerCase();
-      const results = rides.filter(
+      const results = baseFilteredRides.filter(
         (ride) =>
           ride.from.toLowerCase().includes(query) ||
           ride.to.toLowerCase().includes(query)
@@ -40,7 +57,7 @@ export default function Rides() {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, rides]);
+  }, [searchQuery, baseFilteredRides]);
 
   const handleBookNow = async (ride) => {
     if (typeof window === "undefined") return;
@@ -59,7 +76,6 @@ export default function Rides() {
     }
 
     const seatsToBook = selectedSeats[ride._id] || 1;
-
     if (seatsToBook > ride.seats) {
       alert(`Only ${ride.seats} seat(s) available.`);
       return;
@@ -72,11 +88,10 @@ export default function Rides() {
       contact_number: ride.contact_number,
       from: ride.from,
       to: ride.to,
-      date: ride.date,
+      date: new Date(ride.date).toISOString(),
       time: ride.time,
       price: ride.price * seatsToBook,
     };
-    console.log("Booking data:", bookingData);
 
     try {
       const res = await fetch("/api/book", {
@@ -101,7 +116,6 @@ export default function Rides() {
 
   return (
     <div className="font-[montserrat] min-h-screen bg-gray-950 py-6 px-6 text-white relative">
-      {/* Heading container with lower z-index */}
       <LampContainer>
         <motion.h1
           initial={{ opacity: 0.5, y: 100 }}
@@ -117,9 +131,7 @@ export default function Rides() {
         </motion.h1>
       </LampContainer>
 
-      {/* Search + rides container with higher z-index and relative positioning */}
       <motion.div className="relative z-10 -mt-96">
-        {/* Animate search input */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -145,9 +157,7 @@ export default function Rides() {
             animate="visible"
             variants={{
               visible: {
-                transition: {
-                  staggerChildren: 0.15,
-                },
+                transition: { staggerChildren: 0.15 },
               },
             }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
@@ -163,14 +173,19 @@ export default function Rides() {
                 className="rounded-2xl p-[1px] bg-gradient-to-br from-zinc-900 to-zinc-900"
               >
                 <div className="bg-cyan-900/60 p-6 rounded-2xl border border-cyan-400/60">
-                  {/* Ride details */}
                   <div className="mb-4">
                     <h2 className="text-2xl font-semibold text-gray-300 mb-2">
                       {ride.from} → {ride.to}
                     </h2>
                     <p className="text-md text-gray-100">
-                      <span className="font-medium">Date:</span> {ride.date}
+                      <span className="font-medium">Date:</span>{" "}
+                      {new Date(ride.date).toLocaleDateString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </p>
+
                     <p className="text-md text-gray-100">
                       <span className="font-medium">Time:</span> {ride.time}
                     </p>
@@ -188,7 +203,6 @@ export default function Rides() {
                     </p>
                   </div>
 
-                  {/* Seat selection */}
                   <div className="mb-4">
                     <label className="text-sm text-gray-100">
                       Seats to book:

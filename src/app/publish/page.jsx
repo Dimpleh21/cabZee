@@ -4,7 +4,7 @@ import Img from "@/../public/car3.jpg";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion"; // 👈 Add this import
-
+import { createRide } from "../utils/actions";
 export default function Publish() {
   const Router = useRouter();
   const [formData, setFormData] = useState({
@@ -42,14 +42,8 @@ export default function Publish() {
     setMessage("");
 
     try {
-      const res = await fetch("/api/publishRide", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data || "Something went wrong");
+      const data = await createRide(formData);
+      if (!data.ok) throw new Error(data.message || "Something went wrong");
 
       setMessage("✅ Ride published successfully!");
       setFormData((prev) => ({

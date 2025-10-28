@@ -3,6 +3,8 @@ import { GlowingEffect } from "@/app/components/ui/glowing-effect";
 import { HoverBorderGradient } from "@/app/components/ui/border-gradient";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createUser } from "../utils/actions";
+import { create } from "domain";
 export default function SignUp() {
   const router = useRouter();
   const [name, setname] = useState("");
@@ -17,20 +19,8 @@ export default function SignUp() {
       return;
     }
     try {
-      const res = await fetch("api/register", {
-        method: "POST",
-        headers: {
-          contentType: "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
+      const data = await createUser({ name, email, password });
+      if (data.ok) {
         setMessage("User registered successfully");
         setname("");
         setEmail("");

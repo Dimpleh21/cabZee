@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Calendar } from "lucide-react";
 import { useRouter } from "next/navigation";
+
 const places = [
   "Dayal Sweets",
   "Children's Park",
@@ -17,6 +17,7 @@ export default function MainForm() {
   const router = useRouter();
   const [fromQuery, setFromQuery] = useState("");
   const [toQuery, setToQuery] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
   const [showFromSuggestions, setShowFromSuggestions] = useState(false);
   const [showToSuggestions, setShowToSuggestions] = useState(false);
   const [filteredFromPlaces, setFilteredFromPlaces] = useState(places);
@@ -24,6 +25,12 @@ export default function MainForm() {
 
   const fromRef = useRef(null);
   const toRef = useRef(null);
+
+  // Set today's date as default on mount
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    setSelectedDate(today);
+  }, []);
 
   // Filter places based on fromQuery
   useEffect(() => {
@@ -51,7 +58,7 @@ export default function MainForm() {
     }
   }, [toQuery]);
 
-  // Close suggestions if click outside
+  // Close suggestions on outside click
   useEffect(() => {
     function handleClickOutside(event) {
       if (fromRef.current && !fromRef.current.contains(event.target)) {
@@ -65,7 +72,23 @@ export default function MainForm() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle current location for from input
+  // Handle submit
+  const handleClick = () => {
+    if (fromQuery.trim() === "" || toQuery.trim() === "") {
+      alert("Please fill in both 'From' and 'To' fields.");
+      return;
+    }
+
+    const dateParam = selectedDate || new Date().toISOString().split("T")[0];
+
+    router.push(
+      `/rides?from=${encodeURIComponent(fromQuery)}&to=${encodeURIComponent(
+        toQuery
+      )}&date=${encodeURIComponent(dateParam)}`
+    );
+  };
+
+  // Current location for From
   const handleCurrentLocationFrom = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -82,7 +105,7 @@ export default function MainForm() {
     }
   };
 
-  // Handle current location for to input
+  // Current location for To
   const handleCurrentLocationTo = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -100,15 +123,14 @@ export default function MainForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto text-black rounded-xl font-[Raleway] ">
+    <div className="max-w-md mx-auto text-black rounded-xl font-[Raleway]">
       <form
         className="space-y-3 w-[400px] ml-4"
         onSubmit={(e) => e.preventDefault()}
       >
+        {/* From input */}
         <div className="relative" ref={fromRef}>
           <div className="absolute left-5 top-8 h-8 w-[1px] bg-black z-0"></div>
-
-          {/* From input */}
           <div className="flex gap-2 items-center mb-2 relative z-10">
             <div className="rounded-full bg-zinc-500/10 w-12 h-10 flex items-center justify-center">
               <div className="w-4 h-4 border-2 border-black rounded-full"></div>
@@ -123,7 +145,6 @@ export default function MainForm() {
               autoComplete="off"
             />
           </div>
-
           {showFromSuggestions && (
             <ul className="absolute bg-white text-black rounded-md shadow-lg w-full max-h-48 overflow-y-auto top-full mt-1 text-sm z-20">
               <li
@@ -170,7 +191,6 @@ export default function MainForm() {
               autoComplete="off"
             />
           </div>
-
           {showToSuggestions && (
             <ul className="absolute bg-white text-black rounded-md shadow-lg w-full max-h-48 overflow-y-auto top-full mt-1 text-sm z-20">
               <li
@@ -204,9 +224,10 @@ export default function MainForm() {
         {/* Date input */}
         <div className="flex gap-2 items-center">
           <input
-            type="Date"
+            type="date"
             className="w-full px-4 py-2 rounded-lg bg-zinc-500/10 focus:outline-none focus:ring text-sm"
-            placeholder="Today"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
           />
         </div>
 
@@ -221,7 +242,7 @@ export default function MainForm() {
         <button
           type="submit"
           className="w-full bg-black text-white py-2 rounded-lg hover:bg-zinc-500/80 transition duration-300 text-sm font-semibold flex items-center justify-center gap-2"
-          onClick={() => router.push("/rides")}
+          onClick={handleClick}
         >
           Search Ride
         </button>

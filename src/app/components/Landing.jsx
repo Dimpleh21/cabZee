@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Car from "../../../public/car1.png";
 import MainForm from "./MainForm";
@@ -8,6 +9,7 @@ import { AnimatedModalDemo } from "./somepage";
 import { useRouter } from "next/navigation";
 export default function Landing() {
   const router = useRouter();
+
   return (
     <div className="flex relative w-full p-8 gap-[80px]">
       <div className="flex flex-col w-full">

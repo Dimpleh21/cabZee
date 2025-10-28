@@ -1,7 +1,21 @@
 import { connectDB } from "@/app/utils/connect";
 import { Ride } from "@/app/models/User";
 import { NextResponse } from "next/server";
+import { createClient } from "redis";
+
+const REDIS_QUEUE = "rides";
+
+const redisClient = createClient({
+  url: "redis://localhost:6379",
+});
+
+async function ensureRedisConnection() {
+  if (!redisClient.isOpen) {
+    await redisClient.connect();
+  }
+}
 export async function POST(req) {
+  await ensureRedisConnection();
   try {
     const { from, to, date, time, seats, price, contact_number, createdBy } =
       await req.json();
@@ -30,11 +44,12 @@ export async function POST(req) {
       time,
       seats,
       price,
-      contact_number, // Placeholder, you might want to change this
+      contact_number,
       createdBy,
     });
 
     await newRide.save();
+    await redisClient.lPush(REDIS_QUEUE, JSON.stringify(newRide));
 
     return NextResponse.json(
       {
@@ -48,12 +63,21 @@ export async function POST(req) {
     return new NextResponse("Publishing ride failed", { status: 500 });
   }
 }
-
 export async function GET() {
+  await ensureRedisConnection();
   try {
-    await connectDB();
+    const ride = await redisClient.rPop(REDIS_QUEUE);
+    if (ride) {
+      return NextResponse.json(JSON.parse(ride), { status: 200 });
+    }
 
-    const rides = await Ride.find().sort({ date: 1, time: 1 }); // sorted by date and time
+    await connectDB();
+    const rides = await Ride.find().sort({ date: 1, time: 1 });
+
+    if (!rides || rides.length === 0) {
+      return new NextResponse("No rides available", { status: 404 });
+    }
+
     return NextResponse.json(rides, { status: 200 });
   } catch (error) {
     console.error("Failed to fetch rides:", error);
